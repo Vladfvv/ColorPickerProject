@@ -1,0 +1,1 @@
+Id:, Width:0, Height:0, Thickness:1, Stroke:#FF000000, Background#FFFF7F50, Point:System.Func`2[System.Windows.Point,System.Windows.Point] 

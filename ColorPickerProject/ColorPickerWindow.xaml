@@ -1,0 +1,25 @@
+﻿<Window x:Class="ColorPickerProject.ColorPickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ColorPickerProject"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="ColorPickerWindow" Height="450" Width="800">
+    <Grid>
+        <GroupBox Header="Элементы привязки">
+            <StackPanel>
+                <TextBlock Margin="20" Text="My TEXT HERE" Background="{Binding ElementName=ClrPcker_Background, Path=SelectedColorText, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding ElementName=color_items, Path=SelectedItem, UpdateSourceTrigger=PropertyChanged}" FontSize="{Binding ElementName=slider_val, Path=Value}" FontFamily="{Binding ElementName=tgbtn, Path=Content}" Opacity="{Binding ElementName=lcanva, Path=Content}">
+                </TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Background:"/>
+                    <xctk:ColorPicker Name="ClrPcker_Background" SelectedColorChanged="ClrPcker_Background_SelectedColorChanged" ></xctk:ColorPicker>
+                </StackPanel>   
+                <StackPanel>
+                    <Button Content="Select" Click="Select_Click" Width="40" Height="20" VerticalAlignment="Bottom"/>
+                </StackPanel>  
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</Window>
