@@ -15,19 +15,31 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Xceed.Wpf.Toolkit;
 
+using System.Printing;
+using System;
+using System.Text.Json.Serialization;
+using System.Xml.Serialization;
+using System.Net.Http.Json;
+using System.Collections.ObjectModel;
+using Xceed.Wpf.AvalonDock.Controls;
+
 namespace ColorPickerProject
 {
 
     public partial class MainWindow : Window
     {
+        string path = "myShapesFile.json";
+        ObservableCollection<Polygon> listPolygons;
+
+
 
         private bool isDrawing = false;
         private Point startPoint;
         private List<Shape> shapes = new List<Shape>();
         // private string currentFileName = null;
         public Color myColorPicker { get; set; }
-        /* MySelectColor mySelectColor;
-         MySelectColor selectedBrush = MySelectColor.SelectedColor;*/
+       
+       
 
         private Point currentMousePosition;
 
@@ -36,7 +48,7 @@ namespace ColorPickerProject
         private double lineThickness = 1.0;
         private bool fileExists = false;
         private string fileName = "";
-        // ObservableCollection<ColorItem> ColorList;
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -46,6 +58,7 @@ namespace ColorPickerProject
              saveCommandBinding.CanExecute += Save_CanExecute;
              CommandBindings.Add(saveCommandBinding);*/
             /* MySelectColor mySelectColor;*/
+            listPolygons = new ObservableCollection<Polygon>();
         }
 
 
@@ -98,7 +111,8 @@ namespace ColorPickerProject
             //myPolygon.Fill = Brushes.Yellow;
             myCanvas.Children.Add(myPolygon);
             shapes.Add(myPolygon);
-           // savePolygon(myPolygon);
+            listPolygons.Add(myPolygon);
+            //savePolygon(myPolygon);
             startPoint = new Point(0, 0);
         }
 
@@ -175,13 +189,13 @@ namespace ColorPickerProject
             System.Windows.MessageBox.Show("First Mini Designer\nVersion 1.0\nCreated by Vlad/&Co");
         }
 
-        private void Button_Save(object sender, RoutedEventArgs e)
+        /*private void Button_Save(object sender, RoutedEventArgs e)
         {
             /*SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*";
             if (saveFileDialog.ShowDialog() == true)
             {               
-            }*/
+            }
 
             if (shapes.Count == 0)
             {
@@ -211,7 +225,167 @@ namespace ColorPickerProject
                 //UpdateWindowTitle();
             }
         }
-     /*   private void savePolygon(Polygon myPolygon)
+        */
+
+
+        /// <summary>
+        /// ////////////////////////////////////////////////////////////////////////////////////////////////
+        private void Button_Save(object sender, RoutedEventArgs e)
+        {
+
+            if (listPolygons.Count == 0)
+            {
+                System.Windows.MessageBox.Show("There are no shapes for saving.");
+                return;
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            // saveFileDialog.Filter = "Text files (*.json)|*.json|All files (*.*)|*.*";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                //foreach (Shape s in shapes)//проходим по объектам listBox-a  и добавляем его в список для последующей сериализации
+                //  {
+
+                //    System.Windows.MessageBox.Show(s.ActualHeight.ToString());
+
+                // }
+
+                // JsonSerializationCustomClass.SaveToJson(shapes.ToList(), path);
+
+
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    IgnoreNullValues = true, // Игнорировать null значения
+                    ReferenceHandler = ReferenceHandler.Preserve // Сохранять ссылки, чтобы избежать зацикливания
+                };
+
+                //string jsonString = JsonSerializer.Serialize(shapes, options);
+                //File.WriteAllText(path, jsonString);
+
+                options.Converters.Add(new PolygonConverter()); // Добавить кастомный конвертер для полигонов
+
+                string jsonString2 = JsonSerializer.Serialize(listPolygons, options);
+                File.WriteAllText(path, jsonString2);
+            }
+
+
+
+        }
+
+        public class PolygonConverter : JsonConverter<Polygon>
+        {
+            public override Polygon Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Write(Utf8JsonWriter writer, Polygon value, JsonSerializerOptions options)
+            {
+                writer.WriteStartObject();
+
+                //Нужные свойства полигона
+                //  writer.WriteNumber("PointsCount", value.Points.Count);
+                writer.WriteNumber("Width", value.ActualWidth);
+                writer.WriteNumber("Height", value.ActualHeight);
+                writer.WriteNumber("Thickness", value.StrokeThickness);
+                // writer.WriteNumber("Fill", ((SolidColorBrush)(value.Stroke.FindVisualAncestor<Brush>);
+                writer.WriteNumber("Fill", value.Fill.ToString());
+
+               // writer.WriteNumber("Background", value.Fill);
+               // foreach (var point in value.Points) {                     
+                    writer.WriteNumber("PointX", value.RenderedGeometry.Bounds.Location.X+10);
+                    writer.WriteNumber("PointY", value.RenderedGeometry.Bounds.Location.Y+10);
+
+                    writer.WriteNumber("PointTop", value.RenderedGeometry.Bounds.Top);
+                    writer.WriteNumber("PointLeftX", value.RenderedGeometry.Bounds.Left);
+                    writer.WriteNumber("PointRightX", value.RenderedGeometry.Bounds.Right);                    
+                    writer.WriteNumber("PointBottom", value.RenderedGeometry.Bounds.Bottom);
+                //}
+
+                writer.WriteEndObject();
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*
+        try
+        {
+            if (shapes.Count > 0)//если список не пуст
+            {
+                List<Shape> shapesFromList = JsonSerializationCustomClass.LoadFromJson(path);//читаем из json-файла
+
+                if (shapesFromList != null)//если в json файле есть объекты
+                {
+                    // Добавляем новые объекты к существующему списку                   
+
+                    foreach (Shape s in shapes)//проходим по объектам listBox-a  и добавляем его в список для последующей сериализации
+                    {
+                        shapesFromList.Add(s);//добавляем каждый объект
+                    }
+                    //чистим файл
+                    JsonSerializationCustomClass.ClearJsonFile(path);
+                    // Сохраняем обновленный список объектов обратно в файл
+                    JsonSerializationCustomClass.SaveToJson(shapesFromList, path);
+                }
+                else
+                {
+                    //чистим файл
+                    JsonSerializationCustomClass.ClearJsonFile(path);
+                    JsonSerializationCustomClass.SaveToJson(shapes.ToList(), path);// Сохраняем список объектов в файл
+                }
+
+                System.Windows.MessageBox.Show("Список объектов успешно сохранен в файл JSON.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Список пуст. Добавьте в список", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(ex.Message);
+        }*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        private void savePolygon(Polygon myPolygon)
         {
             if (File.Exists("D:\\Vlad\\СВПП\\20240427\\ColorPickerProject\\ColorPickerProject\\ColorPickerProject\\File1.txt"))
             {
@@ -219,7 +393,7 @@ namespace ColorPickerProject
                 {
                     using (StreamWriter writer = new StreamWriter("D:\\Vlad\\СВПП\\20240427\\ColorPickerProject\\ColorPickerProject\\ColorPickerProject\\File1.txt"))
                     {
-                        foreach (var child in myCanvas.Children)
+                        /*foreach (var child in myCanvas.Children)
                         {
                             if (child is Rectangle square)
                             {
@@ -230,17 +404,15 @@ namespace ColorPickerProject
                                 double thickness = square.StrokeThickness;
                                 Color strokeColor = ((SolidColorBrush)square.Stroke).Color;
                                 Color fillColor = ((SolidColorBrush)square.Fill).Color;
-
-                                // Записываем параметры квадрата в файл
-                                writer.WriteLine($"Id:{myPolygon.Uid}, " +
-                            $"Width:{myPolygon.ActualWidth}, " +
-                            $"Height:{myPolygon.ActualHeight}, " +
-                            $"Thickness:{((Polygon)myPolygon).StrokeThickness}, " +
-                            $"Stroke:{((SolidColorBrush)((Polygon)myPolygon).Stroke).Color}, " +
-                            $"Background{myPolygon.Fill}, " +
-                            $"Point:{myPolygon.PointFromScreen} ");
-                            }
-                        }
+*/
+                        // Записываем параметры квадрата в файл
+                        writer.WriteLine($"Id:{myPolygon.Uid}, " +
+                    $"Width:{myPolygon.ActualWidth}, " +
+                    $"Height:{myPolygon.ActualHeight}, " +
+                    $"Thickness:{((Polygon)myPolygon).StrokeThickness}, " +
+                    $"Stroke:{((SolidColorBrush)((Polygon)myPolygon).Stroke).Color}, " +
+                    $"Background{myPolygon.Fill}");
+                       
                     }
                 }
                 catch (Exception ex)
@@ -254,7 +426,7 @@ namespace ColorPickerProject
             }
         }
 
-        */
+
 
         private void NewCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -267,9 +439,9 @@ namespace ColorPickerProject
         }
 
 
-        /*
-        
 
+
+        /*
         private void SavePolygonList_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             List<Polygon> polygons = new List<Polygon>(); // Assume you have a list of polygons
@@ -290,8 +462,8 @@ namespace ColorPickerProject
             }
 
             System.Windows.MessageBox.Show("Polygon list saved successfully.");
-        }
-        */
+        }*/
+
 
     }
 
