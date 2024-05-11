@@ -31,12 +31,13 @@ namespace ColorPickerProject
     {
         string path = "myShapesFile.json";
         ObservableCollection<Polygon> listPolygons;
-
+        ObservableCollection<Shape> deserializableListShapes;
 
 
         private bool isDrawing = false;
         private Point startPoint;
         private List<Shape> shapes = new List<Shape>();
+
         // private string currentFileName = null;
         public Color myColorPicker { get; set; }
 
@@ -60,6 +61,7 @@ namespace ColorPickerProject
              CommandBindings.Add(saveCommandBinding);*/
             /* MySelectColor mySelectColor;*/
             listPolygons = new ObservableCollection<Polygon>();
+            deserializableListShapes = new ObservableCollection<Shape>();
         }
 
 
@@ -68,13 +70,13 @@ namespace ColorPickerProject
         {
             Point clickPoint = e.GetPosition(myCanvas);
             Console.Write(myColorPicker.R);
-            DrawStar(clickPoint, myColorPicker);
+            DrawStar(clickPoint);
             UpdateStatusBarText(clickPoint);
             UpdateBottomStatusBar(clickPoint);
             //myStatusBar.DataContext = clickPoint;
         }
 
-        private void DrawStar(Point startPoint, Color colorPicker)
+        private void DrawStar(Point startPoint)
         {
 
 
@@ -258,14 +260,14 @@ namespace ColorPickerProject
                 var options = new JsonSerializerOptions
                 {
                     WriteIndented = true,
-                    IgnoreNullValues = true, // Игнорировать null значения
-                    ReferenceHandler = ReferenceHandler.Preserve // Сохранять ссылки, чтобы избежать зацикливания
+                    // IgnoreNullValues = true, // Игнорировать null значения
+                    ReferenceHandler = ReferenceHandler.Preserve // Сохранять ссылки, чтобы избежать зацикливания!!!!!!!!!!!!!!!!!!!
                 };
 
                 //string jsonString = JsonSerializer.Serialize(shapes, options);
                 //File.WriteAllText(path, jsonString);
 
-                options.Converters.Add(new PolygonConverter()); // Добавить кастомный конвертер для полигонов
+                options.Converters.Add(new PolygonConverter()); //Kастомный конвертер для полигонов
 
                 string jsonString2 = JsonSerializer.Serialize(listPolygons, options);
                 File.WriteAllText(path, jsonString2);
@@ -277,14 +279,8 @@ namespace ColorPickerProject
 
         public class PolygonConverter : JsonConverter<Polygon>
         {
-            public override Polygon Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                throw new NotImplementedException();
-            }
-
             public override void Write(Utf8JsonWriter writer, Polygon value, JsonSerializerOptions options)
             {
-              
                 List<Point> listPointsForSerialize = new List<Point>();
                 listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X + 10, value.RenderedGeometry.Bounds.Location.Y + 20));
                 listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X + 20, value.RenderedGeometry.Bounds.Location.Y + 10));
@@ -298,10 +294,10 @@ namespace ColorPickerProject
                 //  writer.WriteNumber("PointsCount", value.Points.Count);
                 writer.WriteNumber("Width", value.ActualWidth);
                 writer.WriteNumber("Height", value.ActualHeight);
-                writer.WriteNumber("Thickness", value.StrokeThickness);               
+                writer.WriteNumber("Thickness", value.StrokeThickness);
                 writer.WriteString("Fill", value.Fill.ToString());
-                writer.WriteString("Stroke", value.Stroke.ToString());              
-               
+                writer.WriteString("Stroke", value.Stroke.ToString());
+
                 writer.WritePropertyName("Point");
                 writer.WriteStartArray();
                 foreach (var p in listPointsForSerialize)
@@ -314,28 +310,317 @@ namespace ColorPickerProject
                 writer.WriteEndArray();
                 writer.WriteEndObject();
             }
-        }
+
+            public override Polygon Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                Polygon polygon = new Polygon();
+                return polygon;
+            }
 
 
 
 
 
+            /*
+                 public override Polygon Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+                  {
+                      // Проверка начала объекта
+                      if (reader.TokenType != JsonTokenType.StartObject)
+                      {
+                          throw new JsonException();
+                      }
 
-        /*
-        private void SerializeColor(Color color, string filePath)
-        {
-            var colorString = $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
+                      // Создание нового объекта Polygon
+                      Polygon polygonD = new Polygon();
 
-            File.WriteAllText(filePath, JsonSerializer.Serialize(colorString));
+                      // Переменные для хранения свойств полигона
+                      double width = 0.0;
+                      double height = 0.0;
+                      double thickness = 0.0;
+                      string fill = "";
+                      string stroke = "";
+                      List<Point> points = new List<Point>();
+
+                      // Чтение JSON
+                      while (reader.Read())
+                      {
+                          if (reader.TokenType == JsonTokenType.EndObject)
+                          {
+                              break;
+                          }
+
+                          if (reader.TokenType != JsonTokenType.PropertyName)
+                          {
+                              throw new JsonException();
+                          }
+
+                          string propertyName = reader.GetString();
+                          reader.Read();
+
+                          switch (propertyName)
+                          {
+                              case "Width":
+                                  width = reader.GetDouble();
+                                  break;
+                              case "Height":
+                                  height = reader.GetDouble();
+                                  break;
+                              case "Thickness":
+                                  thickness = reader.GetDouble();
+                                  break;
+                              case "Fill":
+                                  fill = reader.GetString();
+                                  break;
+                              case "Stroke":
+                                  stroke = reader.GetString();
+                                  break;
+                              case "Point":
+                                  reader.Read();
+                                  if (reader.TokenType == JsonTokenType.StartArray)
+                                  {
+                                      while (reader.Read())
+                                      {
+                                          if (reader.TokenType == JsonTokenType.EndArray)
+                                          {
+                                              break;
+                                          }
+
+                                          double x = 0, y = 0;
+
+                                          while (reader.Read())
+                                          {
+                                              if (reader.TokenType == JsonTokenType.EndObject)
+                                              {
+                                                  break;
+                                              }
+
+                                              if (reader.TokenType == JsonTokenType.PropertyName)
+                                              {
+                                                  string propName = reader.GetString();
+                                                  reader.Read();
+
+                                                  switch (propName)
+                                                  {
+                                                      case "X":
+                                                          x = reader.GetDouble();
+                                                          break;
+                                                      case "Y":
+                                                          y = reader.GetDouble();
+                                                          break;
+                                                      default:
+                                                          reader.Skip();
+                                                          break;
+                                                  }
+                                              }
+                                          }
+
+                                          points.Add(new Point(x, y));
+                                      }
+                                  }
+                                  break;
+                              default:
+                                  reader.Skip();
+                                  break;
+                          }
+                      }
+
+                      polygonD.Fill = (Brush)ColorConverter.ConvertFromString(fill);
+                      polygonD.Stroke = (Brush)ColorConverter.ConvertFromString(stroke);
+                      polygonD.StrokeThickness = thickness;
+                      polygonD.Points = points;
+                      polygonD.ActualWidth = width;
+                      polygonD.ActualHeight = height;
+
+                      polygonD.;  
+
+                      // Установка свойств объекта Polygon
+            //          polygon.ActualWidth = width;
+             //         polygon.ActualHeight = height;
+            //          polygon.StrokeThickness = thickness;
+                      // Необходимо добавить логику для установки Fill и Stroke, которые являются типами Brush.
+                      // polygon.Fill = ...
+                      // polygon.Stroke = ...
+           //           polygon.Points = points;
+
+                      return polygon;
+                  }
+
+              }*/
+
+            /*
+            private void SerializeColor(Color color, string filePath)
+            {
+                var colorString = $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
+
+                File.WriteAllText(filePath, JsonSerializer.Serialize(colorString));
+            }
         }
     }
-}
-В этом примере, цвет преобразуется в строку формата "#AARRGGBB", где AA - прозрачность, RR - красный, GG - зеленый, и BB - синий, и сохраняется в JSON файл.
+    В этом примере, цвет преобразуется в строку формата "#AARRGGBB", где AA - прозрачность, RR - красный, GG - зеленый, и BB - синий, и сохраняется в JSON файл.
 
-При десериализации, нужно использовать ColorConverter.ConvertFromString для восстановления объекта цвета из строки.
+    При десериализации, нужно использовать ColorConverter.ConvertFromString для восстановления объекта цвета из строки.
 
 
-        */
+            */
+
+
+
+
+
+            public List<Polygon> Read2(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                // Проверка начала массива
+                if (reader.TokenType != JsonTokenType.StartArray)
+                {
+                    throw new JsonException();
+                }
+
+                List<Polygon> polygons = new List<Polygon>();
+
+                // Чтение JSON
+                while (reader.Read())
+                {
+                    if (reader.TokenType == JsonTokenType.EndArray)
+                    {
+                        break;
+                    }
+
+                    if (reader.TokenType == JsonTokenType.StartObject)
+                    {
+                        Polygon polygon = ReadPolygon(ref reader);
+                        polygons.Add(polygon);
+                    }
+                }
+
+                return polygons;
+            }
+
+            private Polygon ReadPolygon(ref Utf8JsonReader reader)
+            {
+                // Создание нового объекта Polygon
+                Polygon polygonD = new Polygon();
+
+                // Переменные для хранения свойств полигона
+                double width = 0, height = 0, thickness = 0;
+                string fill = "", stroke = "";
+                List<Point> point = new List<Point>();
+                List<Point> listPointsForDeserialize = new List<Point>();
+
+                // Чтение JSON
+                while (reader.Read())
+                {
+                    if (reader.TokenType == JsonTokenType.EndObject)
+                    {
+                        break;
+                    }
+
+                    if (reader.TokenType != JsonTokenType.PropertyName)
+                    {
+                        throw new JsonException();
+                    }
+
+                    string propertyName = reader.GetString();
+                    reader.Read();
+
+                    switch (propertyName)
+                    {
+                        case "Width":
+                            width = reader.GetDouble();
+                            break;
+                        case "Height":
+                            height = reader.GetDouble();
+                            break;
+                        case "Thickness":
+                            thickness = reader.GetDouble();
+                            break;
+                        case "Fill":
+                            fill = reader.GetString();
+                            break;
+                        case "Stroke":
+                            stroke = reader.GetString();
+                            break;
+                        case "Points":
+                            reader.Read();
+                            if (reader.TokenType == JsonTokenType.StartArray)
+                            {
+                                while (reader.Read())
+                                {
+                                    if (reader.TokenType == JsonTokenType.EndArray)
+                                    {
+                                        break;
+                                    }
+
+                                    double x = 0, y = 0;
+
+                                    while (reader.Read())
+                                    {
+                                        if (reader.TokenType == JsonTokenType.EndObject)
+                                        {
+                                            break;
+                                        }
+
+                                        if (reader.TokenType == JsonTokenType.PropertyName)
+                                        {
+                                            string propName = reader.GetString();
+                                            reader.Read();
+
+                                            switch (propName)
+                                            {
+                                                case "X":
+                                                    x = reader.GetDouble();
+                                                    break;
+                                                case "Y":
+                                                    y = reader.GetDouble();
+                                                    break;
+                                                default:
+                                                    reader.Skip();
+                                                    break;
+                                            }
+                                        }
+                                    }
+
+                                    listPointsForDeserialize.Add(new Point(x, y));
+                                }
+                            }
+                            break;
+                        default:
+                            reader.Skip();
+                            break;
+                    }
+                }
+
+                // Установка свойств объекта Polygon
+                polygonD.Fill = (Brush)ColorConverter.ConvertFromString(fill);
+                polygonD.Stroke = (Brush)ColorConverter.ConvertFromString(stroke);
+                polygonD.StrokeThickness = thickness;
+                polygonD.Points = new PointCollection();
+                foreach (var p in listPointsForDeserialize) polygonD.Points.Add(new Point(p.X, p.Y));
+
+                return polygonD;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
