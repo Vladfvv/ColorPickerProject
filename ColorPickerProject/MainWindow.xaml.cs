@@ -22,6 +22,7 @@ using System.Xml.Serialization;
 using System.Net.Http.Json;
 using System.Collections.ObjectModel;
 using Xceed.Wpf.AvalonDock.Controls;
+using System.Reflection;
 
 namespace ColorPickerProject
 {
@@ -38,8 +39,8 @@ namespace ColorPickerProject
         private List<Shape> shapes = new List<Shape>();
         // private string currentFileName = null;
         public Color myColorPicker { get; set; }
-       
-       
+
+
 
         private Point currentMousePosition;
 
@@ -48,7 +49,7 @@ namespace ColorPickerProject
         private double lineThickness = 1.0;
         private bool fileExists = false;
         private string fileName = "";
-        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -283,28 +284,34 @@ namespace ColorPickerProject
 
             public override void Write(Utf8JsonWriter writer, Polygon value, JsonSerializerOptions options)
             {
+              
+                List<Point> listPointsForSerialize = new List<Point>();
+                listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X + 10, value.RenderedGeometry.Bounds.Location.Y + 20));
+                listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X + 20, value.RenderedGeometry.Bounds.Location.Y + 10));
+                listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X + 10, value.RenderedGeometry.Bounds.Location.Y));
+                listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X, value.RenderedGeometry.Bounds.Location.Y + 10));
+
+
                 writer.WriteStartObject();
 
                 //Нужные свойства полигона
                 //  writer.WriteNumber("PointsCount", value.Points.Count);
                 writer.WriteNumber("Width", value.ActualWidth);
                 writer.WriteNumber("Height", value.ActualHeight);
-                writer.WriteNumber("Thickness", value.StrokeThickness);
-                // writer.WriteNumber("Fill", ((SolidColorBrush)(value.Stroke.FindVisualAncestor<Brush>);
+                writer.WriteNumber("Thickness", value.StrokeThickness);               
                 writer.WriteString("Fill", value.Fill.ToString());
-                writer.WriteString("Stroke", value.Stroke.ToString());
-
-               // writer.WriteNumber("Background", value.Fill);
-               // foreach (var point in value.Points) {                     
-                    writer.WriteNumber("PointX", value.RenderedGeometry.Bounds.Location.X+10);
-                    writer.WriteNumber("PointY", value.RenderedGeometry.Bounds.Location.Y+10);
-
-                    writer.WriteNumber("PointTop", value.RenderedGeometry.Bounds.Top);
-                    writer.WriteNumber("PointLeftX", value.RenderedGeometry.Bounds.Left);
-                    writer.WriteNumber("PointRightX", value.RenderedGeometry.Bounds.Right);                    
-                    writer.WriteNumber("PointBottom", value.RenderedGeometry.Bounds.Bottom);
-                //}
-
+                writer.WriteString("Stroke", value.Stroke.ToString());              
+               
+                writer.WritePropertyName("Point");
+                writer.WriteStartArray();
+                foreach (var p in listPointsForSerialize)
+                {
+                    writer.WriteStartObject();
+                    writer.WriteNumber("X", p.X);
+                    writer.WriteNumber("Y", p.Y);
+                    writer.WriteEndObject();
+                }
+                writer.WriteEndArray();
                 writer.WriteEndObject();
             }
         }
@@ -329,66 +336,6 @@ namespace ColorPickerProject
 
 
         */
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*
-        try
-        {
-            if (shapes.Count > 0)//если список не пуст
-            {
-                List<Shape> shapesFromList = JsonSerializationCustomClass.LoadFromJson(path);//читаем из json-файла
-
-                if (shapesFromList != null)//если в json файле есть объекты
-                {
-                    // Добавляем новые объекты к существующему списку                   
-
-                    foreach (Shape s in shapes)//проходим по объектам listBox-a  и добавляем его в список для последующей сериализации
-                    {
-                        shapesFromList.Add(s);//добавляем каждый объект
-                    }
-                    //чистим файл
-                    JsonSerializationCustomClass.ClearJsonFile(path);
-                    // Сохраняем обновленный список объектов обратно в файл
-                    JsonSerializationCustomClass.SaveToJson(shapesFromList, path);
-                }
-                else
-                {
-                    //чистим файл
-                    JsonSerializationCustomClass.ClearJsonFile(path);
-                    JsonSerializationCustomClass.SaveToJson(shapes.ToList(), path);// Сохраняем список объектов в файл
-                }
-
-                System.Windows.MessageBox.Show("Список объектов успешно сохранен в файл JSON.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else
-            {
-                System.Windows.MessageBox.Show("Список пуст. Добавьте в список", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(ex.Message);
-        }*/
-
-
-
-
-
-
-
-
-
 
 
 
@@ -427,7 +374,7 @@ namespace ColorPickerProject
                     $"Thickness:{((Polygon)myPolygon).StrokeThickness}, " +
                     $"Stroke:{((SolidColorBrush)((Polygon)myPolygon).Stroke).Color}, " +
                     $"Background{myPolygon.Fill}");
-                       
+
                     }
                 }
                 catch (Exception ex)
