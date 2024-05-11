@@ -291,7 +291,8 @@ namespace ColorPickerProject
                 writer.WriteNumber("Height", value.ActualHeight);
                 writer.WriteNumber("Thickness", value.StrokeThickness);
                 // writer.WriteNumber("Fill", ((SolidColorBrush)(value.Stroke.FindVisualAncestor<Brush>);
-                writer.WriteNumber("Fill", value.Fill.ToString());
+                writer.WriteString("Fill", value.Fill.ToString());
+                writer.WriteString("Stroke", value.Stroke.ToString());
 
                // writer.WriteNumber("Background", value.Fill);
                // foreach (var point in value.Points) {                     
@@ -313,7 +314,21 @@ namespace ColorPickerProject
 
 
 
+        /*
+        private void SerializeColor(Color color, string filePath)
+        {
+            var colorString = $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
 
+            File.WriteAllText(filePath, JsonSerializer.Serialize(colorString));
+        }
+    }
+}
+В этом примере, цвет преобразуется в строку формата "#AARRGGBB", где AA - прозрачность, RR - красный, GG - зеленый, и BB - синий, и сохраняется в JSON файл.
+
+При десериализации, нужно использовать ColorConverter.ConvertFromString для восстановления объекта цвета из строки.
+
+
+        */
 
 
 
