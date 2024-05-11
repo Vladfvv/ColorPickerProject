@@ -39,7 +39,7 @@ namespace ColorPickerProject
         private List<Shape> shapes = new List<Shape>();
 
         // private string currentFileName = null;
-        public Color myColorPicker { get; set; }
+        public Color myColorPicker;
 
 
 
@@ -78,8 +78,6 @@ namespace ColorPickerProject
 
         private void DrawStar(Point startPoint)
         {
-
-
             // Реализация рисования звезды            
             //startPoint = e.GetPosition(myCanvas);
             Polygon myPolygon = new Polygon();
@@ -272,9 +270,6 @@ namespace ColorPickerProject
                 string jsonString2 = JsonSerializer.Serialize(listPolygons, options);
                 File.WriteAllText(path, jsonString2);
             }
-
-
-
         }
 
         public class PolygonConverter : JsonConverter<Polygon>
@@ -567,14 +562,23 @@ namespace ColorPickerProject
                                             switch (propName)
                                             {
                                                 case "X":
-                                                    x = reader.GetDouble();
-                                                    break;
+                                                    {
+                                                        x = reader.GetDouble();
+                                                        break;
+                                                    }
+
                                                 case "Y":
-                                                    y = reader.GetDouble();
-                                                    break;
+                                                    {
+                                                        y = reader.GetDouble();
+                                                        break;
+                                                    }
+
                                                 default:
-                                                    reader.Skip();
-                                                    break;
+                                                    {
+                                                        reader.Skip();
+                                                        break;
+                                                    }
+
                                             }
                                         }
                                     }
@@ -634,11 +638,11 @@ namespace ColorPickerProject
 
         private void savePolygon(Polygon myPolygon)
         {
-            if (File.Exists("D:\\Vlad\\СВПП\\20240427\\ColorPickerProject\\ColorPickerProject\\ColorPickerProject\\File1.txt"))
+            if (File.Exists("File1.txt"))
             {
                 try
                 {
-                    using (StreamWriter writer = new StreamWriter("D:\\Vlad\\СВПП\\20240427\\ColorPickerProject\\ColorPickerProject\\ColorPickerProject\\File1.txt"))
+                    using (StreamWriter writer = new StreamWriter("File1.txt"))
                     {
                         /*foreach (var child in myCanvas.Children)
                         {
@@ -713,11 +717,12 @@ namespace ColorPickerProject
 
 
     }
-
-
-
-
 }
+
+
+
+
+
 
 
 
