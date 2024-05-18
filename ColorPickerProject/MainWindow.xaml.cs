@@ -219,7 +219,7 @@ namespace ColorPickerProject
             // }
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Text files (*.json)|*.json|All files (*.*)|*.*";
+            //saveFileDialog.Filter = "Text files (*.json)|*.json|All files (*.*)|*.*";
 
             if (saveFileDialog.ShowDialog() == true)
             {
@@ -349,10 +349,10 @@ namespace ColorPickerProject
 
                         Polygon myP = new Polygon();
                         myP.Points = new PointCollection() {
-                             new Point(startPoint.X, startPoint.Y + 10),
-                             new Point(startPoint.X + 10, startPoint.Y),
-                             new Point(startPoint.X, startPoint.Y - 10),
-                             new Point(startPoint.X - 10, startPoint.Y)};
+                             new Point(polygon.points.X, polygon.points.Y + 10),
+                             new Point(polygon.points.X + 10, polygon.points.Y),
+                             new Point(polygon.points.X, polygon.points.Y - 10),
+                             new Point(polygon.points.X - 10, polygon.points.Y)};
 
                         
                             myP.StrokeThickness = polygon.strokeThickness;                        

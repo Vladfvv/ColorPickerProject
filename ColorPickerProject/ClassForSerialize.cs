@@ -11,9 +11,6 @@ namespace ColorPickerProject
 {
     class ClassForSerialize
     {
-
-
-
        
             public Point points { get; set; }
             public double strokeThickness { get; internal set; } = 1.0;
@@ -32,7 +29,6 @@ namespace ColorPickerProject
 
             public ClassForSerialize()
             {
-                points = ;
                 strokeColor = new SolidColorBrush(Colors.Black);
                 fill = new SolidColorBrush(Colors.OrangeRed);
             }
@@ -55,4 +51,4 @@ namespace ColorPickerProject
 
 
     }
-}
+

@@ -26,13 +26,13 @@ namespace ColorPickerProject
 
       
 
-
+        /*
         public CustomPolygon()
         {
             strokeColor = new SolidColorBrush(Colors.Black);
             fill = new SolidColorBrush(Colors.OrangeRed);
         }
-     
+     */
         [OnSerializing]
         internal void OnSerializingMethod(StreamingContext context)
         {
