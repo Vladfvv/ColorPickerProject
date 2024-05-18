@@ -10,8 +10,8 @@ namespace ColorPickerProject
 {
     public static class MyColor
     {
-        public static SolidColorBrush MyLineColor = new SolidColorBrush(Colors.Black);//for line color
-        public static double SelectedLineThickness { get; set; } = 1.0;
+        public static SolidColorBrush MyLineColor = new SolidColorBrush(Colors.White);//for line color
+        public static double SelectedLineThickness { get; set; } = 0.0;
         public static SolidColorBrush MyBackgroundColor = new SolidColorBrush(Colors.Coral); ///for background color
 
     }

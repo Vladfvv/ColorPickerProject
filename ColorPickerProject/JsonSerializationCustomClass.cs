@@ -13,7 +13,7 @@ namespace ColorPickerProject
     class JsonSerializationCustomClass
     {
         // Метод для сохранения списка объектов в файл JSON
-        public static void SaveToJson(List<Shape> list, string path)
+        public static void SaveToJson(List<CustomPolygon> list, string path)
         {
             try
             {
@@ -32,12 +32,12 @@ namespace ColorPickerProject
         }
 
 
-        public static List<Shape> LoadFromJson(string path)
+        public static List<CustomPolygon> LoadFromJson(string path)
         {
             try
             {
                 string jsonString = File.ReadAllText(path);
-                return JsonSerializer.Deserialize<List<Shape>>(jsonString);
+                return JsonSerializer.Deserialize<List<CustomPolygon>>(jsonString);
             }
             catch (Exception ex)
             {

@@ -23,6 +23,7 @@ using System.Net.Http.Json;
 using System.Collections.ObjectModel;
 using Xceed.Wpf.AvalonDock.Controls;
 using System.Reflection;
+using System.Runtime.Serialization.Json;
 
 namespace ColorPickerProject
 {
@@ -30,13 +31,14 @@ namespace ColorPickerProject
     public partial class MainWindow : Window
     {
         string path = "myShapesFile.json";
-        ObservableCollection<Polygon> listPolygons;
-        ObservableCollection<Shape> deserializableListShapes;
+        private ObservableCollection<CustomPolygon> listPolygons = new ObservableCollection<CustomPolygon>();
+        ObservableCollection<CustomPolygon> deserializableListShapes = new ObservableCollection<CustomPolygon>();
 
 
         private bool isDrawing = false;
         private Point startPoint;
-        private List<Shape> shapes = new List<Shape>();
+        private List<CustomPolygon> shapes = new List<CustomPolygon>();
+        private CustomPolygon customPolygon = new CustomPolygon();
 
         // private string currentFileName = null;
         public Color myColorPicker;
@@ -50,6 +52,7 @@ namespace ColorPickerProject
         private double lineThickness = 1.0;
         private bool fileExists = false;
         private string fileName = "";
+        //CustomPolygon myPolygon;
 
         public MainWindow()
         {
@@ -60,8 +63,9 @@ namespace ColorPickerProject
              saveCommandBinding.CanExecute += Save_CanExecute;
              CommandBindings.Add(saveCommandBinding);*/
             /* MySelectColor mySelectColor;*/
-            listPolygons = new ObservableCollection<Polygon>();
-            deserializableListShapes = new ObservableCollection<Shape>();
+            //listPolygons = new ObservableCollection<CustomPolygon>();
+            deserializableListShapes = new ObservableCollection<CustomPolygon>();
+
         }
 
 
@@ -78,43 +82,54 @@ namespace ColorPickerProject
 
         private void DrawStar(Point startPoint)
         {
-            // Реализация рисования звезды            
-            //startPoint = e.GetPosition(myCanvas);
-            Polygon myPolygon = new Polygon();
-            myPolygon.Points = new PointCollection();
-            myPolygon.Points.Add(new Point(startPoint.X, startPoint.Y - 10));
-            myPolygon.Points.Add(new Point(startPoint.X + 10, startPoint.Y));
-            myPolygon.Points.Add(new Point(startPoint.X, startPoint.Y + 10));
-            myPolygon.Points.Add(new Point(startPoint.X - 10, startPoint.Y));
-            if (myPolygon.StrokeThickness == 0) myPolygon.StrokeThickness = lineThickness;
-            else myPolygon.StrokeThickness = MyColor.SelectedLineThickness;
+            CustomPolygon myCustomPolygon = new CustomPolygon();
 
-            if (MyColor.MyLineColor.Color.R == 0 && MyColor.MyLineColor.Color.G == 0 && MyColor.MyLineColor.Color.B == 0)//если не задан - присвоим цвет по умолчанию
+            // Создаем экземпляр класса Polygon (наследника Shape)
+            Polygon myPolygon = new Polygon();
+            myPolygon.Points = new PointCollection() {
+            new Point(startPoint.X, startPoint.Y + 10),
+            new Point(startPoint.X + 10, startPoint.Y),
+            new Point(startPoint.X, startPoint.Y - 10),
+            new Point(startPoint.X - 10, startPoint.Y)};
+
+            if (MyColor.SelectedLineThickness == 0)
+                myPolygon.StrokeThickness = lineThickness;
+            else
+            {
+                myPolygon.StrokeThickness = MyColor.SelectedLineThickness;
+                myCustomPolygon.strokeThickness = MyColor.SelectedLineThickness;
+            }
+            if (MyColor.MyLineColor.Color == Colors.White)//если не задан - присвоим цвет по умолчанию
             {
                 SolidColorBrush brush = new SolidColorBrush(Colors.Black);
                 myPolygon.Stroke = brush;
+                myCustomPolygon.strokeColor = brush;
+                myCustomPolygon.SerializedColorLine = brush.Color.ToString();
             }
-            else myPolygon.Stroke = MyColor.MyLineColor;
-
-
-            if (MyColor.MyBackgroundColor.Color.R == 0 && MyColor.MyBackgroundColor.Color.G == 0 && MyColor.MyBackgroundColor.Color.B == 0)
+            else
+            {
+                myPolygon.Stroke = MyColor.MyLineColor;
+                myCustomPolygon.strokeColor = MyColor.MyLineColor;
+                myCustomPolygon.SerializedColorLine = MyColor.MyLineColor.Color.ToString();
+            }
+            if (MyColor.MyBackgroundColor.Color == Colors.White)
             {
                 SolidColorBrush brush = new SolidColorBrush(Colors.Green);
                 myPolygon.Fill = brush;
+                myCustomPolygon.SerializedColorFill = brush.Color.ToString();
+            }//если не задан - присвоим цвет по умолчанию
+            else
+            {
                 myPolygon.Fill = MyColor.MyBackgroundColor;
+                myCustomPolygon.fill = MyColor.MyBackgroundColor;
+                myCustomPolygon.SerializedColorFill = MyColor.MyBackgroundColor.Color.ToString();
             }
+            myCustomPolygon.points = startPoint;
+            listPolygons.Add(myCustomPolygon);
 
-            else//если не задан - присвоим цвет по умолчанию
-                myPolygon.Fill = MyColor.MyBackgroundColor;
-
-
-
-            //myPolygon.Fill = Brushes.Yellow;
             myCanvas.Children.Add(myPolygon);
-            shapes.Add(myPolygon);
-            listPolygons.Add(myPolygon);
-            //savePolygon(myPolygon);
-            startPoint = new Point(0, 0);
+            // startPoint = new Point(0, 0);
+
         }
 
         private void UpdateStatusBarText(Point mousePosition)
@@ -190,452 +205,76 @@ namespace ColorPickerProject
             System.Windows.MessageBox.Show("First Mini Designer\nVersion 1.0\nCreated by Vlad/&Co");
         }
 
-        /*private void Button_Save(object sender, RoutedEventArgs e)
-        {
-            /*SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*";
-            if (saveFileDialog.ShowDialog() == true)
-            {               
-            }
-
-            if (shapes.Count == 0)
-            {
-                System.Windows.MessageBox.Show("There are no shapes for saving.");
-                return;
-            }
-
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
-                {
-                    foreach (Shape shape in shapes)
-                    {
-                        writer.WriteLine($"Id:{shape.Uid}, " +
-                            $"Width:{shape.ActualWidth}, " +
-                            $"Height:{shape.ActualHeight}, " +
-                            $"Thickness:{((Polygon)shape).StrokeThickness}, " +
-                            $"Stroke:{((SolidColorBrush)((Polygon)shape).Stroke).Color}, " +
-                            $"Background{shape.Fill}, " +
-                            $"Point:{shape.PointFromScreen} ");
-                    }
-                }
-                fileName = saveFileDialog.FileName;
-                //UpdateWindowTitle();
-            }
-        }
-        */
 
 
-        /// <summary>
-        /// ////////////////////////////////////////////////////////////////////////////////////////////////
+
+
         private void Button_Save(object sender, RoutedEventArgs e)
         {
 
-            if (listPolygons.Count == 0)
-            {
-                System.Windows.MessageBox.Show("There are no shapes for saving.");
-                return;
-            }
+            //  if (listPolygons.Count == 0)
+            // {
+            //      System.Windows.MessageBox.Show("There are no shapes for saving.");
+            //      return;
+            // }
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            // saveFileDialog.Filter = "Text files (*.json)|*.json|All files (*.*)|*.*";
+            saveFileDialog.Filter = "Text files (*.json)|*.json|All files (*.*)|*.*";
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                //foreach (Shape s in shapes)//проходим по объектам listBox-a  и добавляем его в список для последующей сериализации
-                //  {
+                // Сериализация списка объектов в JSON
+                // string json = Serialize(listPolygons);
 
-                //    System.Windows.MessageBox.Show(s.ActualHeight.ToString());
+                // Запись JSON в файл
+                //File.WriteAllText(path, json);
 
-                // }
+     //           System.Windows.MessageBox.Show("Список сохранен в файл polygons.json");
 
-                // JsonSerializationCustomClass.SaveToJson(shapes.ToList(), path);
-
-
-                var options = new JsonSerializerOptions
+                try
                 {
-                    WriteIndented = true,
-                    // IgnoreNullValues = true, // Игнорировать null значения
-                    ReferenceHandler = ReferenceHandler.Preserve // Сохранять ссылки, чтобы избежать зацикливания!!!!!!!!!!!!!!!!!!!
-                };
-
-                //string jsonString = JsonSerializer.Serialize(shapes, options);
-                //File.WriteAllText(path, jsonString);
-
-                options.Converters.Add(new PolygonConverter()); //Kастомный конвертер для полигонов
-
-                string jsonString2 = JsonSerializer.Serialize(listPolygons, options);
-                File.WriteAllText(path, jsonString2);
-            }
-        }
-
-        public class PolygonConverter : JsonConverter<Polygon>
-        {
-            public override void Write(Utf8JsonWriter writer, Polygon value, JsonSerializerOptions options)
-            {
-                List<Point> listPointsForSerialize = new List<Point>();
-                listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X + 10, value.RenderedGeometry.Bounds.Location.Y + 20));
-                listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X + 20, value.RenderedGeometry.Bounds.Location.Y + 10));
-                listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X + 10, value.RenderedGeometry.Bounds.Location.Y));
-                listPointsForSerialize.Add(new Point(value.RenderedGeometry.Bounds.Location.X, value.RenderedGeometry.Bounds.Location.Y + 10));
-
-
-                writer.WriteStartObject();
-
-                //Нужные свойства полигона
-                //  writer.WriteNumber("PointsCount", value.Points.Count);
-                writer.WriteNumber("Width", value.ActualWidth);
-                writer.WriteNumber("Height", value.ActualHeight);
-                writer.WriteNumber("Thickness", value.StrokeThickness);
-                writer.WriteString("Fill", value.Fill.ToString());
-                writer.WriteString("Stroke", value.Stroke.ToString());
-
-                writer.WritePropertyName("Point");
-                writer.WriteStartArray();
-                foreach (var p in listPointsForSerialize)
-                {
-                    writer.WriteStartObject();
-                    writer.WriteNumber("X", p.X);
-                    writer.WriteNumber("Y", p.Y);
-                    writer.WriteEndObject();
-                }
-                writer.WriteEndArray();
-                writer.WriteEndObject();
-            }
-
-            public override Polygon Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                Polygon polygon = new Polygon();
-                return polygon;
-            }
-
-
-
-
-
-            /*
-                 public override Polygon Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-                  {
-                      // Проверка начала объекта
-                      if (reader.TokenType != JsonTokenType.StartObject)
-                      {
-                          throw new JsonException();
-                      }
-
-                      // Создание нового объекта Polygon
-                      Polygon polygonD = new Polygon();
-
-                      // Переменные для хранения свойств полигона
-                      double width = 0.0;
-                      double height = 0.0;
-                      double thickness = 0.0;
-                      string fill = "";
-                      string stroke = "";
-                      List<Point> points = new List<Point>();
-
-                      // Чтение JSON
-                      while (reader.Read())
-                      {
-                          if (reader.TokenType == JsonTokenType.EndObject)
-                          {
-                              break;
-                          }
-
-                          if (reader.TokenType != JsonTokenType.PropertyName)
-                          {
-                              throw new JsonException();
-                          }
-
-                          string propertyName = reader.GetString();
-                          reader.Read();
-
-                          switch (propertyName)
-                          {
-                              case "Width":
-                                  width = reader.GetDouble();
-                                  break;
-                              case "Height":
-                                  height = reader.GetDouble();
-                                  break;
-                              case "Thickness":
-                                  thickness = reader.GetDouble();
-                                  break;
-                              case "Fill":
-                                  fill = reader.GetString();
-                                  break;
-                              case "Stroke":
-                                  stroke = reader.GetString();
-                                  break;
-                              case "Point":
-                                  reader.Read();
-                                  if (reader.TokenType == JsonTokenType.StartArray)
-                                  {
-                                      while (reader.Read())
-                                      {
-                                          if (reader.TokenType == JsonTokenType.EndArray)
-                                          {
-                                              break;
-                                          }
-
-                                          double x = 0, y = 0;
-
-                                          while (reader.Read())
-                                          {
-                                              if (reader.TokenType == JsonTokenType.EndObject)
-                                              {
-                                                  break;
-                                              }
-
-                                              if (reader.TokenType == JsonTokenType.PropertyName)
-                                              {
-                                                  string propName = reader.GetString();
-                                                  reader.Read();
-
-                                                  switch (propName)
-                                                  {
-                                                      case "X":
-                                                          x = reader.GetDouble();
-                                                          break;
-                                                      case "Y":
-                                                          y = reader.GetDouble();
-                                                          break;
-                                                      default:
-                                                          reader.Skip();
-                                                          break;
-                                                  }
-                                              }
-                                          }
-
-                                          points.Add(new Point(x, y));
-                                      }
-                                  }
-                                  break;
-                              default:
-                                  reader.Skip();
-                                  break;
-                          }
-                      }
-
-                      polygonD.Fill = (Brush)ColorConverter.ConvertFromString(fill);
-                      polygonD.Stroke = (Brush)ColorConverter.ConvertFromString(stroke);
-                      polygonD.StrokeThickness = thickness;
-                      polygonD.Points = points;
-                      polygonD.ActualWidth = width;
-                      polygonD.ActualHeight = height;
-
-                      polygonD.;  
-
-                      // Установка свойств объекта Polygon
-            //          polygon.ActualWidth = width;
-             //         polygon.ActualHeight = height;
-            //          polygon.StrokeThickness = thickness;
-                      // Необходимо добавить логику для установки Fill и Stroke, которые являются типами Brush.
-                      // polygon.Fill = ...
-                      // polygon.Stroke = ...
-           //           polygon.Points = points;
-
-                      return polygon;
-                  }
-
-              }*/
-
-            /*
-            private void SerializeColor(Color color, string filePath)
-            {
-                var colorString = $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
-
-                File.WriteAllText(filePath, JsonSerializer.Serialize(colorString));
-            }
-        }
-    }
-    В этом примере, цвет преобразуется в строку формата "#AARRGGBB", где AA - прозрачность, RR - красный, GG - зеленый, и BB - синий, и сохраняется в JSON файл.
-
-    При десериализации, нужно использовать ColorConverter.ConvertFromString для восстановления объекта цвета из строки.
-
-
-            */
-
-
-
-
-
-            public List<Polygon> Read2(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                // Проверка начала массива
-                if (reader.TokenType != JsonTokenType.StartArray)
-                {
-                    throw new JsonException();
-                }
-
-                List<Polygon> polygons = new List<Polygon>();
-
-                // Чтение JSON
-                while (reader.Read())
-                {
-                    if (reader.TokenType == JsonTokenType.EndArray)
+                    if (listPolygons.Count > 0)//если список в файле не пуст
                     {
-                        break;
-                    }
+                        List<CustomPolygon> polygonsFromList = JsonSerializationCustomClass.LoadFromJson(path);//читаем из json-файла
 
-                    if (reader.TokenType == JsonTokenType.StartObject)
-                    {
-                        Polygon polygon = ReadPolygon(ref reader);
-                        polygons.Add(polygon);
-                    }
-                }
+                        if (polygonsFromList != null)//если в json файле есть объекты
+                        {
+                            // Добавляем новые объекты к существующему списку                   
 
-                return polygons;
-            }
-
-            private Polygon ReadPolygon(ref Utf8JsonReader reader)
-            {
-                // Создание нового объекта Polygon
-                Polygon polygonD = new Polygon();
-
-                // Переменные для хранения свойств полигона
-                double width = 0, height = 0, thickness = 0;
-                string fill = "", stroke = "";
-                List<Point> point = new List<Point>();
-                List<Point> listPointsForDeserialize = new List<Point>();
-
-                // Чтение JSON
-                while (reader.Read())
-                {
-                    if (reader.TokenType == JsonTokenType.EndObject)
-                    {
-                        break;
-                    }
-
-                    if (reader.TokenType != JsonTokenType.PropertyName)
-                    {
-                        throw new JsonException();
-                    }
-
-                    string propertyName = reader.GetString();
-                    reader.Read();
-
-                    switch (propertyName)
-                    {
-                        case "Width":
-                            width = reader.GetDouble();
-                            break;
-                        case "Height":
-                            height = reader.GetDouble();
-                            break;
-                        case "Thickness":
-                            thickness = reader.GetDouble();
-                            break;
-                        case "Fill":
-                            fill = reader.GetString();
-                            break;
-                        case "Stroke":
-                            stroke = reader.GetString();
-                            break;
-                        case "Points":
-                            reader.Read();
-                            if (reader.TokenType == JsonTokenType.StartArray)
+                            foreach (CustomPolygon p in listPolygons)//проходим по объектам listBox-a  и добавляем его в список для последующей сериализации
                             {
-                                while (reader.Read())
-                                {
-                                    if (reader.TokenType == JsonTokenType.EndArray)
-                                    {
-                                        break;
-                                    }
-
-                                    double x = 0, y = 0;
-
-                                    while (reader.Read())
-                                    {
-                                        if (reader.TokenType == JsonTokenType.EndObject)
-                                        {
-                                            break;
-                                        }
-
-                                        if (reader.TokenType == JsonTokenType.PropertyName)
-                                        {
-                                            string propName = reader.GetString();
-                                            reader.Read();
-
-                                            switch (propName)
-                                            {
-                                                case "X":
-                                                    {
-                                                        x = reader.GetDouble();
-                                                        break;
-                                                    }
-
-                                                case "Y":
-                                                    {
-                                                        y = reader.GetDouble();
-                                                        break;
-                                                    }
-
-                                                default:
-                                                    {
-                                                        reader.Skip();
-                                                        break;
-                                                    }
-
-                                            }
-                                        }
-                                    }
-
-                                    listPointsForDeserialize.Add(new Point(x, y));
-                                }
+                                polygonsFromList.Add(p);//добавляем каждый объект
                             }
-                            break;
-                        default:
-                            reader.Skip();
-                            break;
+                            //чистим файл
+                            JsonSerializationCustomClass.ClearJsonFile(path);
+                            // Сохраняем обновленный список объектов обратно в файл
+                            JsonSerializationCustomClass.SaveToJson(polygonsFromList, path);
+                        }
+                        else
+                        {
+                            //чистим файл
+                            JsonSerializationCustomClass.ClearJsonFile(path);
+                            JsonSerializationCustomClass.SaveToJson(listPolygons.ToList(), path);// Сохраняем список объектов в файл
+                        }
+
+                        System.Windows.MessageBox.Show("Список объектов успешно сохранен в файл JSON.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show("Список пуст. Добавьте в список", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
-
-                // Установка свойств объекта Polygon
-                polygonD.Fill = (Brush)ColorConverter.ConvertFromString(fill);
-                polygonD.Stroke = (Brush)ColorConverter.ConvertFromString(stroke);
-                polygonD.StrokeThickness = thickness;
-                polygonD.Points = new PointCollection();
-                foreach (var p in listPointsForDeserialize) polygonD.Points.Add(new Point(p.X, p.Y));
-
-                return polygonD;
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(ex.Message);
+                }
             }
+
         }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        /*
         private void savePolygon(Polygon myPolygon)
         {
             if (File.Exists("File1.txt"))
@@ -644,18 +283,7 @@ namespace ColorPickerProject
                 {
                     using (StreamWriter writer = new StreamWriter("File1.txt"))
                     {
-                        /*foreach (var child in myCanvas.Children)
-                        {
-                            if (child is Rectangle square)
-                            {
-                                // Получаем параметры квадрата
-                                double x = Canvas.GetLeft(square);
-                                double y = Canvas.GetTop(square);
-                                double size = square.Width;
-                                double thickness = square.StrokeThickness;
-                                Color strokeColor = ((SolidColorBrush)square.Stroke).Color;
-                                Color fillColor = ((SolidColorBrush)square.Fill).Color;
-*/
+
                         // Записываем параметры квадрата в файл
                         writer.WriteLine($"Id:{myPolygon.Uid}, " +
                     $"Width:{myPolygon.ActualWidth}, " +
@@ -675,7 +303,7 @@ namespace ColorPickerProject
             {
                 System.Windows.MessageBox.Show("Файла не существует:");
             }
-        }
+        }*/
 
 
 
@@ -691,33 +319,73 @@ namespace ColorPickerProject
 
 
 
-
-        /*
-        private void SavePolygonList_Executed(object sender, ExecutedRoutedEventArgs e)
+        private void Button_Load(object sender, RoutedEventArgs e)
         {
-            List<Polygon> polygons = new List<Polygon>(); // Assume you have a list of polygons
-            //polygons = shapes
-            string filePath = "polygons.txt"; // Path to save the polygons
+            myCanvas.Children.Clear();
 
-            using (StreamWriter writer = new StreamWriter(filePath))
+            // Диалоговое окно для выбора файла
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "JSON Files (*.json)|*.json|All files (*.*)|*.*";
+            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            if (openFileDialog.ShowDialog() == true)
             {
-                foreach (var polygon in shapes)
+                try
                 {
-                    writer.WriteLine($"Polygon: {polygon.Name}, Points: {polygon.PointFromScreen() Points.Count}");
-                    foreach (var point in polygon.PointFromScreen)
+                    // Чтение JSON файла
+                    string json = File.ReadAllText(openFileDialog.FileName);
+
+                    // Десериализация JSON в список объектов CustomPolygon
+                    List<CustomPolygon> loadedPolygons;
+                    using (MemoryStream ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
                     {
-                        writer.WriteLine($"X: {point.X}, Y: {point.Y}");
+                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<CustomPolygon>));
+                        loadedPolygons = (List<CustomPolygon>)serializer.ReadObject(ms);
                     }
-                    writer.WriteLine(); // Add a blank line to separate polygons
+
+                    // Обработка загруженного списка объектов, например, вывод информации или дальнейшая обработка
+                    foreach (var polygon in loadedPolygons)
+                    {
+
+                        Polygon myP = new Polygon();
+                        myP.Points = new PointCollection() {
+                             new Point(startPoint.X, startPoint.Y + 10),
+                             new Point(startPoint.X + 10, startPoint.Y),
+                             new Point(startPoint.X, startPoint.Y - 10),
+                             new Point(startPoint.X - 10, startPoint.Y)};
+
+                        
+                            myP.StrokeThickness = polygon.strokeThickness;                        
+                       
+                            SolidColorBrush brush1 = new SolidColorBrush(Colors.Black);
+                            myP.Stroke = polygon.strokeColor;                           
+                                                     
+                      
+                       
+                            myP.Fill = polygon.fill;                           
+                       
+                        //myCustomPolygon.points = startPoint;
+                       // listPolygons.Add(myCustomPolygon);
+
+
+
+
+
+                        myCanvas.Children.Add(myP);
+                        System.Windows.MessageBox.Show($"Loaded Polygon: Points={polygon.points}, StrokeThickness={polygon.strokeThickness}, StrokeColor={polygon.strokeColor.Color}, FillColor={polygon.fill.Color}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show($"An error occurred while loading polygons: {ex.Message}");
                 }
             }
-
-            System.Windows.MessageBox.Show("Polygon list saved successfully.");
-        }*/
+        }
 
 
     }
 }
+
 
 
 
