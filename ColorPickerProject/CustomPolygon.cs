@@ -13,7 +13,7 @@ namespace ColorPickerProject
     public class CustomPolygon
     {
         public Point points { get; set; }
-        public double strokeThickness { get; internal set; } = 1.0;
+        public double strokeThickness { get; set; }
         // public Point Points { get; internal set; }
         [NonSerialized] // Помечаем, чтобы это поле не сериализовалось
         public SolidColorBrush strokeColor = new SolidColorBrush(Colors.Black);//for line color   
@@ -26,13 +26,13 @@ namespace ColorPickerProject
 
       
 
-        /*
+        
         public CustomPolygon()
         {
             strokeColor = new SolidColorBrush(Colors.Black);
             fill = new SolidColorBrush(Colors.OrangeRed);
         }
-     */
+     
         [OnSerializing]
         internal void OnSerializingMethod(StreamingContext context)
         {

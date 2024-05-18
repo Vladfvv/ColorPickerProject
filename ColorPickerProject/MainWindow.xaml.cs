@@ -24,6 +24,7 @@ using System.Collections.ObjectModel;
 using Xceed.Wpf.AvalonDock.Controls;
 using System.Reflection;
 using System.Runtime.Serialization.Json;
+using System.Linq;
 
 namespace ColorPickerProject
 {
@@ -57,18 +58,14 @@ namespace ColorPickerProject
         public MainWindow()
         {
             InitializeComponent();
+            // deserializableListShapes = new ObservableCollection<CustomPolygon>();
 
-            /* CommandBinding saveCommandBinding = new CommandBinding(ApplicationCommands.Save);
-             saveCommandBinding.Executed += Save_Executed;
-             saveCommandBinding.CanExecute += Save_CanExecute;
-             CommandBindings.Add(saveCommandBinding);*/
-            /* MySelectColor mySelectColor;*/
-            //listPolygons = new ObservableCollection<CustomPolygon>();
-            deserializableListShapes = new ObservableCollection<CustomPolygon>();
+            CommandBinding saveCommandBinding = new CommandBinding(ApplicationCommands.Save);
+            saveCommandBinding.Executed += Save_Executed;
+            saveCommandBinding.CanExecute += Save_CanExecute;
+            CommandBindings.Add(saveCommandBinding);
 
         }
-
-
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -229,7 +226,7 @@ namespace ColorPickerProject
                 // Запись JSON в файл
                 //File.WriteAllText(path, json);
 
-     //           System.Windows.MessageBox.Show("Список сохранен в файл polygons.json");
+                //           System.Windows.MessageBox.Show("Список сохранен в файл polygons.json");
 
                 try
                 {
@@ -307,15 +304,16 @@ namespace ColorPickerProject
 
 
 
-        private void NewCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        void NewCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }
 
-        private void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             System.Windows.MessageBox.Show("Open new window");
         }
+
 
 
 
@@ -323,70 +321,84 @@ namespace ColorPickerProject
         {
             myCanvas.Children.Clear();
 
-            // Диалоговое окно для выбора файла
-            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
-            openFileDialog.Filter = "JSON Files (*.json)|*.json|All files (*.*)|*.*";
-            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "JSON Files (*.json)|*.json";
+
+            // Получаем путь к папке проекта
+            string projectDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Относительный путь к файлу myShapesFile.json в папке net8.0-windows
+            string relativePath = System.IO.Path.Combine("..", "..", "..", "..", "..", "net8.0-windows", "myShapesFile.json");
+
+            // Объединяем путь к папке проекта с относительным путем к файлу
+            string filePath = System.IO.Path.GetFullPath(System.IO.Path.Combine(projectDirectory, relativePath));
+
+            openFileDialog.FileName = filePath;
 
             if (openFileDialog.ShowDialog() == true)
             {
+                // Обработка выбранного файла
+                System.Windows.MessageBox.Show($"Selected file: {openFileDialog.FileName}");
+
                 try
                 {
-                    // Чтение JSON файла
-                    string json = File.ReadAllText(openFileDialog.FileName);
+                    List<CustomPolygon> fromJsonFileList = JsonSerializationCustomClass.LoadFromJson(path);//читаем из json-файла
 
-                    // Десериализация JSON в список объектов CustomPolygon
-                    List<CustomPolygon> loadedPolygons;
-                    using (MemoryStream ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
+                    if (fromJsonFileList.Count > 0)//если в json файле есть объекты
                     {
-                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<CustomPolygon>));
-                        loadedPolygons = (List<CustomPolygon>)serializer.ReadObject(ms);
+                        foreach (CustomPolygon p in fromJsonFileList)//проходим по объектам listBox-a  и добавляем его в список для последующей сериализации
+                        {
+                            Polygon myP = new Polygon();
+                            myP.Points = new PointCollection() {
+                             new Point(p.points.X, p.points.Y + 10),
+                             new Point(p.points.X + 10, p.points.Y),
+                             new Point(p.points.X, p.points.Y - 10),
+                             new Point(p.points.X - 10, p.points.Y)};
+
+                            myP.StrokeThickness = p.strokeThickness;
+
+                            BrushConverter converter = new BrushConverter();
+
+                            // Преобразование строки в Brush
+                            Brush brush = (Brush)converter.ConvertFromString(p.SerializedColorLine);
+                            // Применение Brush к необходимому элементу управления
+                            myP.Stroke = brush;
+                            brush = (Brush)converter.ConvertFromString(p.SerializedColorFill);
+                            myP.Fill = brush;
+
+
+                            myCanvas.Children.Add(myP);
+                            // System.Windows.MessageBox.Show($"Loaded Polygon: Points={p.points}, StrokeThickness={p.strokeThickness}, StrokeColor={p.strokeColor.Color}, FillColor={p.fill.Color}");
+
+                        }
+                        System.Windows.MessageBox.Show("Список объектов успешно прочитан из файла JSON.", "Done", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
-
-                    // Обработка загруженного списка объектов, например, вывод информации или дальнейшая обработка
-                    foreach (var polygon in loadedPolygons)
+                    else
                     {
-
-                        Polygon myP = new Polygon();
-                        myP.Points = new PointCollection() {
-                             new Point(polygon.points.X, polygon.points.Y + 10),
-                             new Point(polygon.points.X + 10, polygon.points.Y),
-                             new Point(polygon.points.X, polygon.points.Y - 10),
-                             new Point(polygon.points.X - 10, polygon.points.Y)};
-
-                        
-                            myP.StrokeThickness = polygon.strokeThickness;                        
-                       
-                            SolidColorBrush brush1 = new SolidColorBrush(Colors.Black);
-                            myP.Stroke = polygon.strokeColor;                           
-                                                     
-                      
-                       
-                            myP.Fill = polygon.fill;                           
-                       
-                        //myCustomPolygon.points = startPoint;
-                       // listPolygons.Add(myCustomPolygon);
-
-
-
-
-
-                        myCanvas.Children.Add(myP);
-                        System.Windows.MessageBox.Show($"Loaded Polygon: Points={polygon.points}, StrokeThickness={polygon.strokeThickness}, StrokeColor={polygon.strokeColor.Color}, FillColor={polygon.fill.Color}");
+                        System.Windows.MessageBox.Show("Файл пуст.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show($"An error occurred while loading polygons: {ex.Message}");
+                    System.Windows.MessageBox.Show(ex.Message);
                 }
             }
         }
 
 
+        private void Save_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
     }
+
+
 }
-
-
 
 
 
