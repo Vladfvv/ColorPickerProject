@@ -58,8 +58,6 @@ namespace ColorPickerProject
         public MainWindow()
         {
             InitializeComponent();
-            // deserializableListShapes = new ObservableCollection<CustomPolygon>();
-
             CommandBinding saveCommandBinding = new CommandBinding(ApplicationCommands.Save);
             saveCommandBinding.Executed += Save_Executed;
             saveCommandBinding.CanExecute += Save_CanExecute;
@@ -72,7 +70,6 @@ namespace ColorPickerProject
             helpCommandBinding.CanExecute += HelpCommandBinding_CanExecute;
             helpCommandBinding.Executed += HelpBinding_Executed;
             CommandBindings.Add(helpCommandBinding);
-
         }
 
         private void HelpCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -166,11 +163,6 @@ namespace ColorPickerProject
             // myStatusBar.Content = $"Mouse Position: X={mousePosition.X}, Y={mousePosition.Y}";
             statusTest.Text = "X:" + (int)mousePosition.X + "\tY:" + (int)mousePosition.Y;
         }
-
-
-
-
-
 
 
 

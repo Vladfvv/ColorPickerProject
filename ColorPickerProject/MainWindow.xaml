@@ -28,15 +28,15 @@
             <ColumnDefinition Width="0.2*"/>
         </Grid.ColumnDefinitions>
         <Menu x:Name="MenuWindows" Height="25" VerticalAlignment="Center" Background="LightGray" Grid.Row="0" Grid.ColumnSpan="5">
-            <MenuItem Header="File">                
-                <MenuItem Header="Save as..." Click="Button_Save" Command="Save"></MenuItem>
-                <MenuItem Header="Load" Click="Button_Load" Command="Open"></MenuItem>
+            <MenuItem Header="File">
+                <MenuItem Header="Save as..." Command="ApplicationCommands.Save"></MenuItem>
+                <MenuItem Header="Load" Command="ApplicationCommands.Open"></MenuItem>
                 <MenuItem Header="Exit" ></MenuItem>
             </MenuItem>
             <Separator />
             <MenuItem Header="Edit Shape" Click="Button_Edit_Shape"></MenuItem>
             <Separator />
-            <MenuItem Header="Help" Click="Button_Help" Command="Help"></MenuItem>
+            <MenuItem Header="Help" Command="ApplicationCommands.Help"></MenuItem>
             <Separator />
             <MenuItem Header="About"  Click="MenuItem_About_Click"></MenuItem>
             
