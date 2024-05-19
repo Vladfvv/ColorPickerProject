@@ -90,28 +90,5 @@ namespace ColorPickerProject
         */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }

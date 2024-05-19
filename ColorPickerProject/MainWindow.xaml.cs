@@ -64,7 +64,30 @@ namespace ColorPickerProject
             saveCommandBinding.Executed += Save_Executed;
             saveCommandBinding.CanExecute += Save_CanExecute;
             CommandBindings.Add(saveCommandBinding);
+            CommandBinding openCommandBinding = new CommandBinding(ApplicationCommands.Open);
+            openCommandBinding.CanExecute += OpenCommandBinding_CanExecute;
+            openCommandBinding.Executed += OpenCommandBinding_Executed;
+            CommandBindings.Add(openCommandBinding);
+            CommandBinding helpCommandBinding = new CommandBinding(ApplicationCommands.Help);
+            helpCommandBinding.CanExecute += HelpCommandBinding_CanExecute;
+            helpCommandBinding.Executed += HelpBinding_Executed;
+            CommandBindings.Add(helpCommandBinding);
 
+        }
+
+        private void HelpCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void OpenCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            load();
+        }
+
+        private void OpenCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -206,9 +229,11 @@ namespace ColorPickerProject
 
 
 
-        private void Button_Save(object sender, RoutedEventArgs e)
-        {
 
+
+
+        private void save()
+        {
             //  if (listPolygons.Count == 0)
             // {
             //      System.Windows.MessageBox.Show("There are no shapes for saving.");
@@ -267,7 +292,22 @@ namespace ColorPickerProject
                 }
             }
 
+
         }
+
+
+
+
+
+        private void Button_Save(object sender, RoutedEventArgs e)
+        {
+
+            save();
+
+        }
+
+
+
 
 
 
@@ -315,9 +355,7 @@ namespace ColorPickerProject
         }
 
 
-
-
-        private void Button_Load(object sender, RoutedEventArgs e)
+        private void load()
         {
             myCanvas.Children.Clear();
 
@@ -383,20 +421,46 @@ namespace ColorPickerProject
                     System.Windows.MessageBox.Show(ex.Message);
                 }
             }
+
+
+        }
+
+
+
+
+        private void Button_Load(object sender, RoutedEventArgs e)
+        {
+            load();
         }
 
 
         private void Save_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = true;
+            if (listPolygons.Count > 0)
+                e.CanExecute = true;
         }
 
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            //throw new NotImplementedException();
+            save();
+        }
+
+        private void help()
+        {
+            System.Windows.MessageBox.Show("Вызов справки");
+        }
+
+
+        private void Button_Help(object sender, RoutedEventArgs e)
+        {
+            help();
+        }
+
+        private void HelpBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            help();
         }
     }
-
 
 }
 
