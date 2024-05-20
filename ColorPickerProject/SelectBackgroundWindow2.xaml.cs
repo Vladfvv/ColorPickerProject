@@ -22,6 +22,7 @@ namespace ColorPickerProject
         public SelectBackgroundWindow2()
         {
             InitializeComponent();
+            colorPicker13.SelectedColor = MyColor.MyBackgroundColor.Color;
         }
 
         private void colorPicker13_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)

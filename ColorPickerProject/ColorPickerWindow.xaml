@@ -8,13 +8,13 @@
         mc:Ignorable="d"
         Title="ColorPickerWindow" Height="450" Width="800">
     <Grid>
-        <GroupBox Header="Элементы привязки">
+        <GroupBox>
             <StackPanel>
-                <TextBlock Margin="20" Text="My TEXT HERE" Background="{Binding ElementName=ClrPcker_Background, Path=SelectedColorText, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding ElementName=color_items, Path=SelectedItem, UpdateSourceTrigger=PropertyChanged}" FontSize="{Binding ElementName=slider_val, Path=Value}" FontFamily="{Binding ElementName=tgbtn, Path=Content}" Opacity="{Binding ElementName=lcanva, Path=Content}">
+                <TextBlock Margin="20" Text="" Background="{Binding ElementName=ClrPcker_Background_SelectedColorChanged, Path=ClrPcker_Background_SelectedColorChanged, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding ElementName=color_items, Path=ClrPcker_Background_SelectedColorChanged, UpdateSourceTrigger=PropertyChanged}" FontSize="{Binding ElementName=slider_val, Path=Value}" FontFamily="{Binding ElementName=tgbtn, Path=Content}" Opacity="{Binding ElementName=lcanva, Path=Content}">
                 </TextBlock>
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Background:"/>
-                    <xctk:ColorPicker Name="ClrPcker_Background" SelectedColorChanged="ClrPcker_Background_SelectedColorChanged" ></xctk:ColorPicker>
+                    <xctk:ColorPicker Name="ClrPcker_Background" SelectedColorChanged="ClrPcker_Background_SelectedColorChanged" Height="30" Width="100"></xctk:ColorPicker>
                 </StackPanel>   
                 <StackPanel>
                     <Button Content="Select" Click="Select_Click" Width="40" Height="20" VerticalAlignment="Bottom"/>

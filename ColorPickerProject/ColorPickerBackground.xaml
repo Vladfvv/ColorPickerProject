@@ -16,15 +16,15 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
+           
         </Grid.ColumnDefinitions>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0">
-            <Label Content="Background:"/>
-            <xctk:ColorPicker  Name="ClrPcker_Background_Shape" Margin="10" SelectedColorChanged="ClrPcker_Background_SelectedColorChanged_Shape" ></xctk:ColorPicker>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
+            <Label Content="Выберите цвет заливки:" VerticalAlignment="Center"/>
+            <xctk:ColorPicker  Name="ClrPcker_Background_Shape" Margin="10" SelectedColorChanged="ClrPcker_Background_SelectedColorChanged_Shape" Height="30" Width="100"></xctk:ColorPicker>
         </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="1">
-            <Button Content="Select" Click="Select_Click123" Width="40" Height="20" VerticalAlignment="Bottom"/>
+        <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">
+            <Button Content="Select" Click="Select_Click123" Width="40" Height="20" />
         </StackPanel>
     </Grid>
 </Window>

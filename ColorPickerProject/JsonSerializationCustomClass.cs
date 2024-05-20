@@ -27,7 +27,7 @@ namespace ColorPickerProject
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при сохранении файла JSON: " + ex.Message);
+              // MessageBox.Show("Ошибка при сохранении файла JSON: " + ex.Message);
             }
         }
 
@@ -41,13 +41,13 @@ namespace ColorPickerProject
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при чтении файла JSON: " + ex.Message);
+              //  MessageBox.Show("Ошибка при чтении файла JSON: " + ex.Message);
                 return null;
             }
         }
-        public static void ClearJsonFile(string filePath)
+        public static void ClearJsonFile(string path)
         {
-            File.WriteAllText(filePath, string.Empty);
+            File.WriteAllText(path, string.Empty);
         }
     }
 }

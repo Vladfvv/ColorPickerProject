@@ -21,7 +21,8 @@ namespace ColorPickerProject
     {
         public ColorPickerBackground()
         {
-            InitializeComponent();
+            InitializeComponent();            
+            ClrPcker_Background_Shape.SelectedColor = MyColor.MyBackgroundColor.Color;
         }
 
         private void ClrPcker_Background_SelectedColorChanged_Shape(object sender, RoutedPropertyChangedEventArgs<Color?> e)

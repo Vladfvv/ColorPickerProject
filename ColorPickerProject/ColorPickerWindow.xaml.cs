@@ -19,16 +19,15 @@ namespace ColorPickerProject
     /// </summary>
     public partial class ColorPickerWindow : Window
     {
-        List<FontFamily> fontFamily;
-        int i = 0;
+       
 
         // public static SolidColorBrush SelectedColor { get; private set; }
         // Статическая переменная для хранения выбранного цвета
         // public static SolidColorBrush SelectedColor { get; set; }
         public ColorPickerWindow()
         {
-            InitializeComponent();
-            fontFamily = Fonts.SystemFontFamilies.ToList();
+            InitializeComponent();          
+            ClrPcker_Background.SelectedColor = MyColor.MyLineColor.Color;
         }
 
         private void ClrPcker_Background_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
@@ -43,16 +42,7 @@ namespace ColorPickerProject
 
        
         private void Select_Click(object sender, RoutedEventArgs e)
-        {
-            // MyColor.myColor2 = color_items.SelectedItem[0];
-            //MyColor.myColor2 = color_items.GetValue();
-            // MyColor.myColor2 = (ClrPcker_Background.SelectedColorChanged());
-            /* if (e.NewValue != null)
-             {
-                 // Сохраняем выбранный цвет в статическую переменную
-                 SelectedColor = new SolidColorBrush(e.NewValue.Value);
-             }*/
-            // MyColor.MyColor2 = SelectedColor;//Второй раз на всякий случай, но все равно статическая переменная пропадает
+        {           
             this.Close();
         }
     }

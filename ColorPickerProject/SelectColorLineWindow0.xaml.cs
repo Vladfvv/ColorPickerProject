@@ -22,6 +22,7 @@ namespace ColorPickerProject
         public SelectColorLineWindow0()
         {
             InitializeComponent();
+            colorPicker11.SelectedColor = MyColor.MyLineColor.Color;
         }
 
         private void colorPicker11_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)

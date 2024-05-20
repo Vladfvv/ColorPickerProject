@@ -25,6 +25,7 @@ using Xceed.Wpf.AvalonDock.Controls;
 using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Linq;
+using System.ComponentModel;
 
 namespace ColorPickerProject
 {
@@ -33,7 +34,7 @@ namespace ColorPickerProject
     {
         string path = "myShapesFile.json";
         private ObservableCollection<CustomPolygon> listPolygons = new ObservableCollection<CustomPolygon>();
-        ObservableCollection<CustomPolygon> deserializableListShapes = new ObservableCollection<CustomPolygon>();
+       // ObservableCollection<CustomPolygon> deserializableListShapes = new ObservableCollection<CustomPolygon>();
 
 
         private bool isDrawing = false;
@@ -72,6 +73,7 @@ namespace ColorPickerProject
             CommandBindings.Add(helpCommandBinding);
         }
 
+     
         private void HelpCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -258,8 +260,6 @@ namespace ColorPickerProject
                     System.Windows.MessageBox.Show(ex.Message);
                 }
             }
-
-
         }
 
 
@@ -268,12 +268,8 @@ namespace ColorPickerProject
 
         private void Button_Save(object sender, RoutedEventArgs e)
         {
-
             save();
-
         }
-
-
 
 
         void NewCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
