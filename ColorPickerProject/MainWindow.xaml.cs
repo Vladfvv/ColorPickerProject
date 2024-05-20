@@ -171,6 +171,7 @@ namespace ColorPickerProject
             LineThicknessWindow lineThicknessWindow = new LineThicknessWindow();
             if (lineThicknessWindow.ShowDialog() == true)
             {
+                if (MyColor.SelectedLineThickness != 0) lineThickness = MyColor.SelectedLineThickness;
                 infoLineThickness.Content = MyColor.SelectedLineThickness.ToString();
             }
 
@@ -184,10 +185,7 @@ namespace ColorPickerProject
             // Открываем окно как диалоговое
             if (colorPickerWindow.ShowDialog() == true)
             {
-                // Получаем выбранный цвет из окна выбора цвета                
-                //SolidColorBrush mySolidColorBrush = new SolidColorBrush(myColorPicker);
-                // System.Drawing.Color mySelectColor1 = System.Drawing.Color.FromArgb(myColorPicker.A, myColorPicker.R, myColorPicker.G, myColorPicker.B);
-                //System.Windows.MessageBox.Show("Selected Color: " + myColorPicker.A);
+               
             }
             infoColor.Content = "Color:" + MyColor.MyLineColor.ToString();
         }
@@ -212,39 +210,16 @@ namespace ColorPickerProject
         }
 
 
-        private void MenuItem_About_Click(object sender, RoutedEventArgs e)
-        {
-            System.Windows.MessageBox.Show("First Mini Designer\nVersion 1.0\nCreated by Vlad/&Co");
-        }
-
-
-
-
-
-
-
+ 
 
         private void save()
-        {
-            //  if (listPolygons.Count == 0)
-            // {
-            //      System.Windows.MessageBox.Show("There are no shapes for saving.");
-            //      return;
-            // }
+        {           
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             //saveFileDialog.Filter = "Text files (*.json)|*.json|All files (*.*)|*.*";
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                // Сериализация списка объектов в JSON
-                // string json = Serialize(listPolygons);
-
-                // Запись JSON в файл
-                //File.WriteAllText(path, json);
-
-                //           System.Windows.MessageBox.Show("Список сохранен в файл polygons.json");
-
                 try
                 {
                     if (listPolygons.Count > 0)//если список в файле не пуст
@@ -298,41 +273,6 @@ namespace ColorPickerProject
 
         }
 
-
-
-
-
-
-        /*
-        private void savePolygon(Polygon myPolygon)
-        {
-            if (File.Exists("File1.txt"))
-            {
-                try
-                {
-                    using (StreamWriter writer = new StreamWriter("File1.txt"))
-                    {
-
-                        // Записываем параметры квадрата в файл
-                        writer.WriteLine($"Id:{myPolygon.Uid}, " +
-                    $"Width:{myPolygon.ActualWidth}, " +
-                    $"Height:{myPolygon.ActualHeight}, " +
-                    $"Thickness:{((Polygon)myPolygon).StrokeThickness}, " +
-                    $"Stroke:{((SolidColorBrush)((Polygon)myPolygon).Stroke).Color}, " +
-                    $"Background{myPolygon.Fill}");
-
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Windows.MessageBox.Show($"Ошибка при сохранении в файл: {ex.Message}");
-                }
-            }
-            else
-            {
-                System.Windows.MessageBox.Show("Файла не существует:");
-            }
-        }*/
 
 
 
@@ -439,7 +379,7 @@ namespace ColorPickerProject
 
         private void help()
         {
-            System.Windows.MessageBox.Show("Вызов справки");
+            System.Windows.MessageBox.Show("First Mini Designer\nVersion 1.0\nCreated by Vlad/&Co");
         }
 
 

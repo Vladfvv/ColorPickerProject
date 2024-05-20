@@ -27,7 +27,7 @@ namespace ColorPickerProject
         private void Select_Click12(object sender, RoutedEventArgs e)
         {
             MyColor.SelectedLineThickness = slider_Line_thickness12.Value;
-            SelectBackgroundWindow2 selectBackgroundWindow2 = new SelectBackgroundWindow2();
+            SelectBackgroundWindow2 selectBackgroundWindow2 = new SelectBackgroundWindow2();           
             selectBackgroundWindow2.Show();
             this.Close();
         }

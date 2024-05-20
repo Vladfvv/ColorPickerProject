@@ -9,8 +9,8 @@
         Title="SelectColorLineWindow0" Height="450" Width="800">
     <Grid>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <Label Content="Line color:"/>
-            <xctk:ColorPicker Name="colorPicker11" SelectedColorChanged="colorPicker11_SelectedColorChanged" Height="100" ></xctk:ColorPicker>
+            <Label Content="Line color:" VerticalAlignment="Center"/>
+            <xctk:ColorPicker Name="colorPicker11" SelectedColorChanged="colorPicker11_SelectedColorChanged" Height="30" ></xctk:ColorPicker>
             <Button Content="Select" Click="Button_Click11" Width="50" Height="30"/>
         </StackPanel>
     </Grid>

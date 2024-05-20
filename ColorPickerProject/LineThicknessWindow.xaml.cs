@@ -26,6 +26,7 @@ namespace ColorPickerProject
 
         private void Select_Click(object sender, RoutedEventArgs e)
         {
+            if (MyColor.SelectedLineThickness != 0) slider_Line_thickness.Value = MyColor.SelectedLineThickness;    
             MyColor.SelectedLineThickness = slider_Line_thickness.Value;
             this.Close();
         }

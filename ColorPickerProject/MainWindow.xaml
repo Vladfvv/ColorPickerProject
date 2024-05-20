@@ -21,11 +21,11 @@
             <RowDefinition  Height="0.1*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.25*"/>
             <ColumnDefinition Width="0.2*"/>
-            <ColumnDefinition Width="0.2*"/>
-            <ColumnDefinition Width="0.2*"/>
+            <ColumnDefinition Width="0.25*"/>
             <ColumnDefinition Width="0.3*"/>
-            <ColumnDefinition Width="0.2*"/>
+            <ColumnDefinition Width="0.1*"/>
         </Grid.ColumnDefinitions>
         <Menu x:Name="MenuWindows" Height="25" VerticalAlignment="Center" Background="LightGray" Grid.Row="0" Grid.ColumnSpan="5">
             <MenuItem Header="File">
@@ -36,9 +36,7 @@
             <Separator />
             <MenuItem Header="Edit Shape" Click="Button_Edit_Shape"></MenuItem>
             <Separator />
-            <MenuItem Header="Help" Command="ApplicationCommands.Help"></MenuItem>
-            <Separator />
-            <MenuItem Header="About"  Click="MenuItem_About_Click"></MenuItem>
+            <MenuItem Header="Help" Command="ApplicationCommands.Help"></MenuItem>         
             
         </Menu>
         <Menu x:Name="myMenu" Height="25" VerticalAlignment="Center" Background="LightGray" Grid.Row="1" Grid.ColumnSpan="5">

@@ -9,9 +9,9 @@
         Title="SelectBackgroundWindow2" Height="450" Width="800">
     <Grid>
         <StackPanel Orientation="Horizontal">
-            <Label Content="Background:"/>
-           
-                <xctk:ColorPicker  Name="colorPicker13" Margin="10" SelectedColorChanged="colorPicker13_SelectedColorChanged" ></xctk:ColorPicker>
+            <Label Content="Цвет заливки:" VerticalAlignment="Center"/>
+
+            <xctk:ColorPicker  Name="colorPicker13" Margin="10" SelectedColorChanged="colorPicker13_SelectedColorChanged" Height="30"></xctk:ColorPicker>
            
             <Button Content="Select" Click="Button_Click13" Width="50" Height="30" VerticalAlignment="Center"/>
         </StackPanel>
